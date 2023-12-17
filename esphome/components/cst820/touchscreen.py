@@ -15,20 +15,24 @@ CST820Touchscreen = cst820_ns.class_(
     i2c.I2CDevice,
 )
 
-CST820ButtonListener = cst820_ns.class_("CST820ButtonListener")
 CONFIG_SCHEMA = touchscreen.TOUCHSCREEN_SCHEMA.extend(
-    {
-        cv.GenerateID(): cv.declare_id(CST820Touchscreen),
-        cv.Optional(CONF_INTERRUPT_PIN): pins.internal_gpio_input_pin_schema,
-        cv.Optional(CONF_RESET_PIN): pins.gpio_output_pin_schema,
-    }
-).extend(i2c.i2c_device_schema(0x15))
+    cv.Schema(
+        {
+            cv.GenerateID(): cv.declare_id(CST820Touchscreen),
+            cv.Optional(CONF_INTERRUPT_PIN): pins.internal_gpio_input_pin_schema,
+            cv.Optional(CONF_RESET_PIN): pins.gpio_output_pin_schema,
+        }
+    )
+    .extend(i2c.i2c_device_schema(0x15))
+    .extend(cv.COMPONENT_SCHEMA)
+)
 
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
-    await touchscreen.register_touchscreen(var, config)
+    await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
+    await touchscreen.register_touchscreen(var, config)
 
     if interrupt_pin := config.get(CONF_INTERRUPT_PIN):
         cg.add(var.set_interrupt_pin(await cg.gpio_pin_expression(interrupt_pin)))
