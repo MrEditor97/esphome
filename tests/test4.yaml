@@ -672,6 +672,15 @@ touchscreen:
           format: Touch at (%d, %d)
           args: [touch.x, touch.y]
 
+  - platform: cst820
+    id: cst820_touchscreen
+    interrupt_pin: GPIO33
+    display: inkplate_display
+    on_touch:
+      - logger.log:
+          format: Touch at (%d, %d)
+          args: [touch.x, touch.y]
+
 i2s_audio:
   i2s_lrclk_pin: GPIO26
   i2s_bclk_pin: GPIO27
